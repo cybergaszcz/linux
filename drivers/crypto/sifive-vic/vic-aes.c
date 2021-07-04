@@ -1077,6 +1077,7 @@ static int vic_cryp_prepare_req(struct skcipher_request *req,
 
 	if (req) {
 		sdev->sreq = req;
+		sdev->areq = NULL;
 		sdev->total_in = req->cryptlen;
 		sdev->total_out = sdev->total_in;
 		sdev->authsize = 0;
@@ -1103,6 +1104,7 @@ static int vic_cryp_prepare_req(struct skcipher_request *req,
 		 *          <- assoclen ->  <- crypten - authsize ->
 		 *          <---------- total_out ----------------->
 		 */
+		sdev->sreq = NULL;
 		sdev->areq = areq;
 		sdev->authsize = crypto_aead_authsize(crypto_aead_reqtfm(areq));
 		sdev->total_in = areq->assoclen + areq->cryptlen;

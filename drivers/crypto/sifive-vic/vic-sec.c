@@ -103,7 +103,6 @@ static int vic_cryp_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct vic_sec_dev *sdev;
-	struct resource *res;
 	int irq, ret;
 	int pages = 0;
 
@@ -116,26 +115,14 @@ static int vic_cryp_probe(struct platform_device *pdev)
 	mutex_init(&sdev->lock);
 	mutex_init(&sdev->doing);
 
-	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "secmem");
-	if (!res) {
-		dev_err(dev, "couldn't get secmem resource\n");
-		return -ENXIO;
-	}
-	
-	sdev->io_base = devm_ioremap_resource(dev, res);
+	sdev->io_base = devm_platform_ioremap_resource_byname(pdev, "secmem");
 	if (IS_ERR(sdev->io_base))
 		return PTR_ERR(sdev->io_base);
 
-	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "secclk");
-	if (!res) {
-		dev_err(dev, "couldn't get secclk resource\n");
-		return -ENXIO;
-	}
-
-	sdev->clk_base = devm_ioremap_resource(dev, res);
+	sdev->clk_base = devm_platform_ioremap_resource_byname(pdev, "secclk");
 	if (IS_ERR(sdev->clk_base))
 		return PTR_ERR(sdev->clk_base);
-	
+
 	sdev->pka.regbase = sdev->io_base + PKA_IO_BASE_OFFSET;
 
 	/* pka irq handle check */

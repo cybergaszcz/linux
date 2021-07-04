@@ -61,6 +61,7 @@ static int pka_wait(struct vic_sec_dev *sdev)
 
 #define PKA_RUN(sdev, pka, func, flags, size)				\
 	do {								\
+		mutex_lock(&sdev->doing);				\
 		elppka_start(pka, func, flags, size);			\
 		rc = pka_wait(sdev);					\
 		if (rc) {						\
@@ -655,35 +656,35 @@ static void pka_clear_state(struct vic_sec_ctx *ctx)
 static void vic_rsa_free_key(struct vic_rsa_key *key)
 {
 	if(key->d)
-		kfree(key->d);
+		kfree_sensitive(key->d);
 	if(key->p)
-		kfree(key->p);
+		kfree_sensitive(key->p);
 	if(key->q)
-		kfree(key->q);
+		kfree_sensitive(key->q);
 	if(key->dp)
-		kfree(key->dp);
+		kfree_sensitive(key->dp);
 	if(key->dq)
-		kfree(key->dq);
+		kfree_sensitive(key->dq);
 	if(key->qinv)
-		kfree(key->qinv);
+		kfree_sensitive(key->qinv);
 	if(key->rinv)
-		kfree(key->rinv);
+		kfree_sensitive(key->rinv);
 	if(key->rinv_p)
-		kfree(key->rinv_p);
+		kfree_sensitive(key->rinv_p);
 	if(key->rinv_q)
-		kfree(key->rinv_q);
+		kfree_sensitive(key->rinv_q);
 	if(key->mp)
-		kfree(key->mp);
+		kfree_sensitive(key->mp);
 	if(key->rsqr)
-		kfree(key->rsqr);
+		kfree_sensitive(key->rsqr);
 	if(key->rsqr_p)
-		kfree(key->rsqr_p);
+		kfree_sensitive(key->rsqr_p);
 	if(key->rsqr_q)
-		kfree(key->rsqr_q);
+		kfree_sensitive(key->rsqr_q);
 	if(key->pmp)
-		kfree(key->pmp);
+		kfree_sensitive(key->pmp);
 	if(key->qmp)
-		kfree(key->qmp);
+		kfree_sensitive(key->qmp);
 	if(key->e)
 		kfree(key->e);
 	if(key->n)
@@ -1081,19 +1082,19 @@ static void vic_rsa_setkey_crt(struct vic_rsa_key *rsa_key, struct rsa_key *raw_
 
  free_dq:
 	memset(rsa_key->dq, '\0', half_key_sz);
-	kfree(rsa_key->dq);
+	kfree_sensitive(rsa_key->dq);
 	rsa_key->dq = NULL;
  free_dp:
 	memset(rsa_key->dp, '\0', half_key_sz);
-	kfree(rsa_key->dp);
+	kfree_sensitive(rsa_key->dp);
 	rsa_key->dp = NULL;
  free_q:
 	memset(rsa_key->q, '\0', half_key_sz);
-	kfree(rsa_key->q);
+	kfree_sensitive(rsa_key->q);
 	rsa_key->q = NULL;
  free_p:
 	memset(rsa_key->p, '\0', half_key_sz);
-	kfree(rsa_key->p);
+	kfree_sensitive(rsa_key->p);
 	rsa_key->p = NULL;
  err:
 	rsa_key->crt_mode = false;
@@ -1197,7 +1198,7 @@ static int vic_rsa_init_tfm(struct crypto_akcipher *tfm)
 	mutex_lock(&ctx->sdev->lock);
 	vic_clk_enable(ctx->sdev,PKA_CLK);
 	vic_pka_reload_firmware(&ctx->sdev->pka);
-	
+
 	return 0;
 }
 
